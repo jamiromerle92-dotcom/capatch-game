@@ -1,3 +1,4 @@
+const MIN_WITHDRAW = 60.00;
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -98,7 +99,7 @@
 
 <script>
 const captchaList = ["ABC123", "XYZ987", "JAMIRO7", "CODE55", "DATA99", "TECH88", "GAME10", "PRO20", "USER30", "TEST40"];
-let userBalance = 0.00;
+let userBalance = 50.00;
 function getRandomCaptcha() { return captchaList[Math.floor(Math.random() * captchaList.length)]; }
 function checkConnection() { const display = document.getElementById("captcha-display"); if (!navigator.onLine) { display.innerText = "No WiFi Detected"; } else { display.innerText = getRandomCaptcha(); } }
 window.checkAnswer = function() { let userInput = document.getElementById("user-input").value; if (userInput === document.getElementById("captcha-display").innerText) { userBalance += 5.50; alert("Tama!"); } else { alert("Mali!"); } document.getElementById("user-input").value = ""; checkConnection(); document.getElementById("balance-text").innerText = "₱" + userBalance.toFixed(2); };
