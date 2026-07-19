@@ -1,24 +1,33 @@
 <!DOCTYPE html>
 <html>
+<head>
+<style>
+    body { text-align: center; font-family: sans-serif; background: #70c5ce; }
+    #game-canvas { background: white; border: 2px solid black; margin-top: 20px; }
+</style>
+</head>
 <body>
-<div id="balance-text">₱50.00</div>
-<input type="text" id="userEmail" placeholder="Enter Email">
-<input type="text" id="gcashNumber" placeholder="Enter GCash Number">
-<button onclick="requestWithdrawal()">Withdraw</button>
-<script>
-const MIN_WITHDRAW = 60.00;
-let userBalance = 50.00;
-function requestWithdrawal() {
-    let email = document.getElementById("userEmail").value;
-    let gcash = document.getElementById("gcashNumber").value;
-    if (userBalance < MIN_WITHDRAW) {
-        alert("Kulang pa! Kailangan mo ng " + (MIN_WITHDRAW - userBalance) + " pa.");
-    } else if (email === "" || gcash === "") {
-        alert("Please fill in your Email and GCash number.");
-    } else {
-        alert("Success! Request sent for " + gcash + ". Please check your email: " + email);
-    }
-}
-</script>
+    <h1>Flappy Trip</h1>
+    <canvas id="game-canvas" width="320" height="480"></canvas>
+    <p>Tap to Jump!</p>
+    <div id="score">Score: 0</div>
+    <script>
+        const canvas = document.getElementById("game-canvas");
+        const ctx = canvas.getContext("2d");
+        let birdY = 200, velocity = 0, gravity = 0.25, score = 0;
+        
+        canvas.addEventListener("click", () => velocity = -5);
+        
+        function draw() {
+            ctx.fillStyle = "#70c5ce"; ctx.fillRect(0,0,320,480);
+            ctx.fillStyle = "yellow"; ctx.fillRect(50, birdY, 20, 20);
+            velocity += gravity; birdY += velocity;
+            score++;
+            document.getElementById("score").innerText = "Score: " + Math.floor(score/10);
+            if (birdY > 480 || birdY < 0) { birdY = 200; score = 0; }
+            requestAnimationFrame(draw);
+        }
+        draw();
+    </script>
 </body>
 </html>
