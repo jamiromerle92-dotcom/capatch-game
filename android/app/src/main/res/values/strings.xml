@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Crypto Captcha Miner</string>
+    <string name="title_activity_main">Crypto Captcha Miner</string>
+    <string name="package_name">com.jamiro.captchaminer</string>
+    <string name="custom_url_scheme">com.jamiro.captchaminer</string>
+</resources>

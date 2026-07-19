@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Captcha Miner</title>
+    <style>
+        body {
+            background-color: #0b132b;
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background-color: #1c2541;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 255, 136, 0.2);
+            border: 1px solid #3a506b;
+            width: 80%;
+            max-width: 400px;
+        }
+        h2 { color: #00ff88; margin-bottom: 5px; }
+        .balance {
+            font-size: 24px;
+            color: #00ff88;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .captcha-box {
+            background-color: #0b132b;
+            color: #ff0055;
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            padding: 15px;
+            border-radius: 5px;
+            border: 2px dashed #3a506b;
+            margin-bottom: 20px;
+            user-select: none;
+        }
+        input[type="text"] {
+            width: 90%;
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 5px;
+            border: 1px solid #3a506b;
+            background-color: #0b132b;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        input:focus { border-color: #00ff88; outline: none; }
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            background-color: #00ff88;
+            color: #0b132b;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:active { transform: scale(0.98); }
+        .withdraw-btn {
+            background-color: transparent;
+            color: #ff0055;
+            border: 1px solid #ff0055;
+            margin-top: 15px;
+            font-size: 14px;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>EARNING BALANCE</h2>
+    <div class="balance" id="balance-text">₱0.00</div>
+    
+    <div class="captcha-box" id="captcha-display">LOADING</div>
+    
+    <input type="text" id="user-input" placeholder="Enter captcha here" autocomplete="off">
+    <button onclick="checkAnswer()">SUBMIT ANSWER</button>
+    
+    <button class="withdraw-btn" onclick="requestWithdraw()">WITHDRAW VIA GCASH</button>
+</div>
+
+<!-- Import Capacitor at AdMob ESM bundle sa simple at native na paraan -->
+<script type="module">
+    import { AdMob } from '@capacitor-community/admob';
+
+    let currentCaptcha = "";
+    let userBalance = 0.00;
+    let submitCount = 0;
+
+    // I-initialize ang AdMob pagka-start ng App
+    async function initAds() {
+        try {
+            await AdMob.initialize({
+                requestTrackingAuthorization: true,
+            });
+            // I-prepare na agad ang ad sa background para mabilis mag-load kapag tinawag
+            await AdMob.prepareInterstitial({
+                adId: 'ca-app-pub-3940256099942544/1033173712', // Google Test Ad ID muna para safe sa dev stage
+                isTesting: true
+            });
+        } catch (e) {
+            console.error("AdMob Init Error: ", e);
+        }
+    }
+
+    async function showAd() {
+        try {
+            await AdMob.showInterstitial();
+            // Pagkatapos mapanood ang ad, mag-load ulit ng bago para sa susunod na trigger
+            await AdMob.prepareInterstitial({
+                adId: 'ca-app-pub-3940256099942544/1033173712',
+                isTesting: true
+            });
+        } catch (e) {
+            console.error("AdShow Error: ", e);
+        }
+    }
+
+    function generateCaptcha() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < 5; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        currentCaptcha = result;
+        document.getElementById("captcha-display").innerText = currentCaptcha;
+    }
+
+    window.checkAnswer = function() {
+        let userInput = document.getElementById("user-input").value;
+        
+        if (userInput === currentCaptcha) {
+            if (userBalance < 500) {
+                userBalance += 5.50; 
+            } else {
+                userBalance += 0.10; 
+            }
+            alert("Tama! Puntos ay naidagdag.");
+        } else {
+            alert("Maling sagot! Subukan muli.");
+        }
+        
+        document.getElementById("user-input").value = "";
+        submitCount++;
+        
+        // INTERSTITIAL AD TRIGGER: Kada 2 subsubmits, lalabas ang totoong full-screen ad
+        if (submitCount >= 2) {
+            showAd();
+            submitCount = 0; 
+        }
+        
+        generateCaptcha();
+        document.getElementById("balance-text").innerText = "₱" + userBalance.toFixed(2);
+    }
+
+    window.requestWithdraw = function() {
+        if (userBalance >= 1000) {
+            alert("Processing withdrawal... Manood ng 50 Rewarded Video Ads para mapabilis ang Queue Number mo.");
+        } else {
+            alert("Minimum withdrawal limit ay ₱1,000.00. Mag-ipon pa!");
+        }
+    }
+
+    // Pag-run ng system setup
+    initAds();
+    generateCaptcha();
+</script>
+
+</body>
+</html>
