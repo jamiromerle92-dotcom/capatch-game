@@ -95,91 +95,16 @@
 </div>
 
 <!-- Import Capacitor at AdMob ESM bundle sa simple at native na paraan -->
-<script type="module">
-    import { AdMob } from '@capacitor-community/admob';
 
-    let currentCaptcha = "";
-    let userBalance = 0.00;
-    let submitCount = 0;
-
-    // I-initialize ang AdMob pagka-start ng App
-    async function initAds() {
-        try {
-            await AdMob.initialize({
-                requestTrackingAuthorization: true,
-            });
-            // I-prepare na agad ang ad sa background para mabilis mag-load kapag tinawag
-            await AdMob.prepareInterstitial({
-                adId: 'ca-app-pub-3940256099942544/1033173712', // Google Test Ad ID muna para safe sa dev stage
-                isTesting: true
-            });
-        } catch (e) {
-            console.error("AdMob Init Error: ", e);
-        }
-    }
-
-    async function showAd() {
-        try {
-            await AdMob.showInterstitial();
-            // Pagkatapos mapanood ang ad, mag-load ulit ng bago para sa susunod na trigger
-            await AdMob.prepareInterstitial({
-                adId: 'ca-app-pub-3940256099942544/1033173712',
-                isTesting: true
-            });
-        } catch (e) {
-            console.error("AdShow Error: ", e);
-        }
-    }
-
-    function generateCaptcha() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let result = '';
-        for (let i = 0; i < 5; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        currentCaptcha = result;
-        document.getElementById("captcha-display").innerText = currentCaptcha;
-    }
-
-    window.checkAnswer = function() {
-        let userInput = document.getElementById("user-input").value;
-        
-        if (userInput === currentCaptcha) {
-            if (userBalance < 500) {
-                userBalance += 5.50; 
-            } else {
-                userBalance += 0.10; 
-            }
-            alert("Tama! Puntos ay naidagdag.");
-        } else {
-            alert("Maling sagot! Subukan muli.");
-        }
-        
-        document.getElementById("user-input").value = "";
-        submitCount++;
-        
-        // INTERSTITIAL AD TRIGGER: Kada 2 subsubmits, lalabas ang totoong full-screen ad
-        if (submitCount >= 2) {
-            showAd();
-            submitCount = 0; 
-        }
-        
-        generateCaptcha();
-        document.getElementById("balance-text").innerText = "₱" + userBalance.toFixed(2);
-    }
-
-    window.requestWithdraw = function() {
-        if (userBalance >= 1000) {
-            alert("Processing withdrawal... Manood ng 50 Rewarded Video Ads para mapabilis ang Queue Number mo.");
-        } else {
-            alert("Minimum withdrawal limit ay ₱1,000.00. Mag-ipon pa!");
-        }
-    }
-
-    // Pag-run ng system setup
-    initAds();
-    generateCaptcha();
+<script>
+const captchaList = ["ABC123", "XYZ987", "JAMIRO7", "CODE55", "DATA99", "TECH88", "GAME10", "PRO20", "USER30", "TEST40"];
+let userBalance = 0.00;
+function getRandomCaptcha() { return captchaList[Math.floor(Math.random() * captchaList.length)]; }
+function checkConnection() { const display = document.getElementById("captcha-display"); if (!navigator.onLine) { display.innerText = "No WiFi Detected"; } else { display.innerText = getRandomCaptcha(); } }
+window.checkAnswer = function() { let userInput = document.getElementById("user-input").value; if (userInput === document.getElementById("captcha-display").innerText) { userBalance += 5.50; alert("Tama!"); } else { alert("Mali!"); } document.getElementById("user-input").value = ""; checkConnection(); document.getElementById("balance-text").innerText = "₱" + userBalance.toFixed(2); };
+window.addEventListener("load", checkConnection);
+window.addEventListener("online", checkConnection);
+window.addEventListener("offline", checkConnection);
 </script>
-
 </body>
 </html>
